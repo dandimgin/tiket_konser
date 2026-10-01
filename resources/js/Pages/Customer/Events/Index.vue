@@ -79,13 +79,25 @@ function resetAutoplay() {
     startAutoplay();
 }
 
-const locations = computed(() => {
-    const set = new Set();
-    events.value.forEach(e => {
-        if (e.location) set.add(e.location);
-    });
-    return Array.from(set);
+const locations = [
+  'Ambon', 'Balikpapan', 'Banda Aceh', 'Bandar Lampung', 'Bandung', 'Banjar', 'Banjarbaru', 'Banjarmasin', 'Batam', 'Batu', 'Baubau', 'Bekasi', 'Bengkulu', 'Bima', 'Binjai', 'Bitung', 'Blitar', 'Bogor', 'Bontang', 'Bukittinggi', 'Cilegon', 'Cimahi', 'Cirebon', 'Denpasar', 'Depok', 'Dumai', 'Gorontalo', 'Gunungsitoli', 'Jakarta Barat', 'Jakarta Pusat', 'Jakarta Selatan', 'Jakarta Timur', 'Jakarta Utara', 'Jambi', 'Jayapura', 'Kediri', 'Kendari', 'Kotamobagu', 'Kupang', 'Langsa', 'Lhokseumawe', 'Lubuklinggau', 'Madiun', 'Magelang', 'Makassar', 'Malang', 'Manado', 'Mataram', 'Medan', 'Metro', 'Mojokerto', 'Padang', 'Padang Panjang', 'Padang Sidempuan', 'Pagar Alam', 'Palangka Raya', 'Palembang', 'Palopo', 'Palu', 'Pangkalpinang', 'Parepare', 'Pariaman', 'Pasuruan', 'Payakumbuh', 'Pekalongan', 'Pekanbaru', 'Pematangsiantar', 'Pontianak', 'Prabumulih', 'Probolinggo', 'Sabang', 'Salatiga', 'Samarinda', 'Sawahlunto', 'Semarang', 'Serang', 'Sibolga', 'Singkawang', 'Sorong', 'Subulussalam', 'Sukabumi', 'Sungai Penuh', 'Surabaya', 'Surakarta', 'Tangerang', 'Tangerang Selatan', 'Tanjungbalai', 'Tanjungpinang', 'Tarakan', 'Tasikmalaya', 'Tebing Tinggi', 'Tegal', 'Ternate', 'Tidore Kepulauan', 'Tomohon', 'Tual', 'Yogyakarta'
+];
+
+const showLocationDropdown = ref(false);
+const locationSearch = ref('');
+const locationDropdownRef = ref(null);
+
+const filteredLocations = computed(() => {
+    const q = locationSearch.value.toLowerCase().trim();
+    if (!q) return locations;
+    return locations.filter(loc => loc.toLowerCase().includes(q));
 });
+
+function closeLocationDropdown(e) {
+    if (locationDropdownRef.value && !locationDropdownRef.value.contains(e.target)) {
+        showLocationDropdown.value = false;
+    }
+}
 
 // Unique artists from events
 const popularArtists = computed(() => {
@@ -113,7 +125,7 @@ const filteredEvents = computed(() => {
             (e.location && e.location.toLowerCase().includes(q)) ||
             (e.artists && e.artists.some(a => a.name && a.name.toLowerCase().includes(q)));
 
-        const matchesLocation = !selectedLocation.value || e.location === selectedLocation.value;
+        const matchesLocation = !selectedLocation.value || (e.location && e.location.toLowerCase().includes(selectedLocation.value.toLowerCase()));
 
         const cat = (selectedCategory.value || '').toLowerCase().trim();
         const matchesCategory = !cat ||
@@ -147,23 +159,22 @@ function getStatusBadgeClass(event) {
 
 // Category labels derived from event names/description
 const categoryChips = [
-    { id: '', name: 'Semua Kategori' },
-    { id: 'konser', name: 'Konser Musik' },
+    { id: '', name: 'Semua' },
+    { id: 'international', name: 'International' },
+    { id: 'indonesia', name: 'Indonesia' },
     { id: 'festival', name: 'Festival' },
-    { id: 'jazz', name: 'Jazz & Acoustic' },
-    { id: 'indie', name: 'Indie & Pop' },
-    { id: 'k-pop', name: 'K-Pop Showcase' },
-    { id: 'stand up', name: 'Stand-up & Seni' },
 ];
 
 onMounted(() => {
     fetchEvents().then(() => {
         startAutoplay();
     });
+    document.addEventListener('click', closeLocationDropdown);
 });
 
 onUnmounted(() => {
     stopAutoplay();
+    document.removeEventListener('click', closeLocationDropdown);
 });
 </script>
 
@@ -172,153 +183,120 @@ onUnmounted(() => {
         <Head title="Jelajah Tiket Konser Musik Resmi - Tiketin" />
 
         <!-- Hero Section -->
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-0">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <!-- Left: Main Hero Banner -->
-                <div class="lg:col-span-2">
-                    <!-- Hero Copy -->
-                    <div class="mb-4">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-100 mb-2">
-                            Platform Tiket Konser Resmi
-                        </span>
-                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight mb-2">
-                            Amankan Tiket Konser<br class="hidden sm:block"/> Musisi Favoritmu<br class="hidden sm:block"/> Lebih Awal
-                        </h1>
-                        <p class="text-sm text-slate-500 mb-4 max-w-lg">
-                            Nikmati transaksi instan tanpa antre panjang. Garansi e-voucher barcode 100% tervalidasi di gerbang venue konser.
-                        </p>
-                        <div class="flex items-center gap-3">
-                            <Link href="/#katalog-event" class="inline-flex items-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold rounded-xl transition shadow-xs">
-                                Beli Tiket Sekarang
-                            </Link>
-                            <Link href="/#katalog-event" class="inline-flex items-center gap-2 px-4 py-2.5 text-slate-700 text-sm font-semibold rounded-xl border border-slate-200 hover:bg-slate-50 transition">
-                                Cek Kalender Event
-                            </Link>
-                        </div>
-                    </div>
-                </div>
+        <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 text-center">
+            <span class="text-sm font-semibold text-blue-500 mb-6 block">
+                Platform Tiket Konser Terpercaya
+            </span>
+            <h1 class="text-5xl sm:text-6xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.1] mb-6">
+                Temukan Konser<br/>Favoritmu
+            </h1>
+            <p class="text-base sm:text-lg text-slate-500 mb-10 max-w-2xl mx-auto">
+                Beli tiket konser, festival, dan pertunjukan musik di Indonesia dengan mudah dan aman.
+            </p>
 
-                <!-- Right: Featured Event Card -->
-                <div class="hidden lg:block">
-                    <div v-if="loading" class="h-36 bg-slate-100 rounded-2xl animate-pulse"></div>
-                    <div v-else-if="carouselEvents.length > 0" class="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-full">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-xs font-bold text-sky-700">Event Rekomendasi</span>
-                            <span class="text-[11px] font-medium text-slate-400">Resmi</span>
-                        </div>
-                        <div class="flex items-center gap-3 mb-3">
-                            <img
-                                v-if="carouselEvents[0]?.poster"
-                                :src="carouselEvents[0].poster"
-                                :alt="carouselEvents[0].name"
-                                class="w-14 h-14 rounded-xl object-cover shrink-0 border border-slate-100"
-                                @error="$event.target.style.display='none'"
-                            />
-                            <div v-else class="w-14 h-14 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center shrink-0">
-                                <svg class="w-7 h-7 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+            <!-- Search Bar -->
+            <div class="relative max-w-3xl mx-auto mb-16">
+                <div class="flex flex-col sm:flex-row items-center bg-white rounded-full p-2 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100">
+                    <div class="flex items-center flex-1 w-full sm:w-auto px-4 py-2 sm:py-0">
+                        <svg class="w-5 h-5 text-slate-400 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <input
+                            v-model="searchQuery"
+                            @keyup.enter="handleSearchSubmit"
+                            type="text"
+                            class="w-full bg-transparent border-0 focus:ring-0 text-slate-900 placeholder-slate-400 text-sm sm:text-base outline-none p-0"
+                            placeholder="Cari konser, artis, atau festival..."
+                        />
+                    </div>
+                    
+                    <div class="hidden sm:block h-6 w-px bg-slate-200 mx-2"></div>
+                    
+                    <div class="flex items-center justify-between w-full sm:w-auto pl-4 pr-2 sm:px-2 py-2 sm:py-0 gap-4 sm:gap-2">
+                        <div class="relative flex items-center" ref="locationDropdownRef">
+                            <!-- Trigger Button -->
+                            <button 
+                                type="button" 
+                                @click="showLocationDropdown = !showLocationDropdown"
+                                class="flex items-center gap-2 pl-2 pr-2 py-2 bg-transparent text-slate-500 hover:text-slate-800 text-sm font-medium transition whitespace-nowrap border-0 focus:ring-0 outline-none truncate max-w-[130px] sm:max-w-[150px]"
+                            >
+                                <span class="truncate">{{ selectedLocation || 'Semua Kota' }}</span>
+                                <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <div 
+                                v-show="showLocationDropdown"
+                                class="absolute top-full right-0 sm:left-0 mt-3 w-56 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50 transform origin-top"
+                            >
+                                <div class="p-2 border-b border-slate-100 bg-slate-50/50">
+                                    <input 
+                                        type="text" 
+                                        v-model="locationSearch" 
+                                        placeholder="Cari kota..." 
+                                        class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none text-slate-900 placeholder-slate-400 transition"
+                                        @click.stop
+                                    />
+                                </div>
+                                <div class="max-h-64 overflow-y-auto p-1 text-left">
+                                    <button 
+                                        type="button" 
+                                        @click="selectedLocation = ''; showLocationDropdown = false; locationSearch = ''"
+                                        class="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition"
+                                        :class="{ 'font-bold text-blue-600 bg-blue-50/50': !selectedLocation }"
+                                    >
+                                        Semua Kota
+                                    </button>
+                                    <button 
+                                        v-for="loc in filteredLocations" 
+                                        :key="loc"
+                                        type="button" 
+                                        @click="selectedLocation = loc; showLocationDropdown = false; locationSearch = ''"
+                                        class="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition"
+                                        :class="{ 'font-bold text-blue-600 bg-blue-50/50': selectedLocation === loc }"
+                                    >
+                                        {{ loc }}
+                                    </button>
+                                    <div v-if="filteredLocations.length === 0" class="px-3 py-4 text-center text-xs text-slate-400">
+                                        Kota tidak ditemukan
+                                    </div>
+                                </div>
                             </div>
-                            <div class="min-w-0">
-                                <p class="text-[11px] text-slate-400 truncate">{{ carouselEvents[0]?.location }}</p>
-                                <h3 class="text-xs font-bold text-slate-900 leading-snug line-clamp-2">{{ carouselEvents[0]?.name }}</h3>
-                            </div>
                         </div>
-                        <div class="flex items-center justify-between pt-2.5 border-t border-slate-100">
-                            <div>
-                                <p class="text-[10px] text-slate-400">Mulai dari</p>
-                                <p class="text-xs font-bold text-slate-900">{{ formatRupiah(getLowestPrice(carouselEvents[0]) || 0) }}</p>
-                            </div>
-                            <Link :href="`/events/${carouselEvents[0]?.id}`" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold rounded-lg border border-sky-200/80 transition">
-                                Pesan Cepat
-                            </Link>
-                        </div>
+                        <button
+                            @click="handleSearchSubmit"
+                            type="button"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full text-sm font-bold transition shadow-sm whitespace-nowrap ml-2"
+                        >
+                            Cari
+                        </button>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Category Filter Chips -->
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5">
-            <div class="p-1.5 bg-white/80 backdrop-blur-md border border-slate-200/70 rounded-2xl flex items-center gap-1.5 overflow-x-auto no-scrollbar shadow-xs">
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+            <div class="flex items-center gap-3 overflow-x-auto no-scrollbar">
                 <button
                     v-for="chip in categoryChips"
                     :key="chip.id"
                     type="button"
                     @click="selectedCategory = chip.id"
-                    class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition shrink-0"
+                    class="px-6 py-2 rounded-full text-sm font-medium transition shrink-0 border"
                     :class="selectedCategory === chip.id
-                        ? 'bg-sky-600 text-white shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'"
+                        ? 'bg-blue-500 text-white border-blue-500'
+                        : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:bg-slate-50'"
                 >
                     {{ chip.name }}
                 </button>
-
-                <!-- Location select -->
-                <div class="ml-auto shrink-0 hidden sm:block pr-1">
-                    <select
-                        v-model="selectedLocation"
-                        class="px-3 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 transition cursor-pointer"
-                    >
-                        <option value="">Semua Lokasi</option>
-                        <option v-for="loc in locations" :key="loc" :value="loc">{{ loc }}</option>
-                    </select>
-                </div>
-            </div>
-        </section>
-
-        <!-- Artists Populer -->
-        <section v-if="!loading && popularArtists.length > 0" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    <h2 class="text-base font-bold text-slate-900">Musisi & Artis Populer</h2>
-                </div>
-                <button type="button" class="text-xs font-semibold text-sky-600 hover:text-sky-700 transition">Lihat Semua Artis</button>
-            </div>
-            <div class="flex items-center gap-4 overflow-x-auto pb-2 no-scrollbar">
-                <div
-                    v-for="artist in popularArtists"
-                    :key="artist.id"
-                    class="flex flex-col items-center gap-2 shrink-0 cursor-pointer group"
-                    @click="searchQuery = artist.name; handleSearchSubmit()"
-                >
-                    <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-200 group-hover:border-sky-400 transition">
-                        <img
-                            v-if="artist.photo"
-                            :src="artist.photo"
-                            :alt="artist.name"
-                            class="w-full h-full object-cover"
-                            @error="$event.target.style.display='none'"
-                        />
-                        <div v-else class="w-full h-full bg-gradient-to-br from-sky-100 to-sky-200 flex items-center justify-center text-sky-600 font-bold text-xl">
-                            {{ artist.name?.charAt(0)?.toUpperCase() }}
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-xs font-semibold text-slate-900 group-hover:text-sky-600 transition truncate max-w-[70px]">{{ artist.name }}</p>
-                        <p class="text-[10px] text-slate-400">{{ artist.eventCount }} konser</p>
-                        <p class="text-[10px] text-sky-500 font-medium">lihat &rsaquo;</p>
-                    </div>
-                </div>
             </div>
         </section>
 
         <!-- Events Section -->
-        <section id="katalog-event" class="pt-8 pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="katalog-event" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
             <!-- Section Header -->
-            <div class="flex items-center justify-between mb-5">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M21.707 5.293a1 1 0 0 0-1.079-.217L13 7.844V6a3 3 0 0 0-6 0v2.511l-3.379.845A2 2 0 0 0 2 11.298v3.404a2 2 0 0 0 1.621 1.942L6 17.241V19a3 3 0 0 0 5.816 1.035l8.812 2.754a1 1 0 0 0 1.303-.956V6a1 1 0 0 0-.224-.707zM9 6a1 1 0 0 1 2 0v1.511L9 8.011V6zm0 13a1 1 0 0 1-1.895-.378l1.895-.474V19zm11 1.332-13-4.062V9.73l13-3.25v13.852z"/></svg>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-extrabold text-slate-900 leading-tight">Event Terbaru & Paling Dinanti</h2>
-                        <p class="text-xs text-slate-500">{{ filteredEvents.length }} Konser Tersedia</p>
-                    </div>
-                </div>
-                <button type="button" class="text-xs font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1 transition">
-                    Lihat Semua Event
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                </button>
+            <div class="flex items-end justify-between mb-6">
+                <h2 class="text-2xl font-bold text-slate-900 leading-tight">Event Populer</h2>
+                <p class="text-sm font-medium text-slate-400">{{ filteredEvents.length }} event</p>
             </div>
 
             <!-- Active Filter Alert -->
@@ -370,7 +348,7 @@ onUnmounted(() => {
                     v-for="event in filteredEvents"
                     :key="event.id"
                     :href="`/events/${event.id}`"
-                    class="group flex flex-col bg-white border border-slate-200/80 rounded-2xl overflow-hidden hover:border-sky-300 hover:shadow-md transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                    class="group flex flex-col bg-white border border-slate-200/80 rounded-[1.25rem] overflow-hidden hover:border-blue-400 hover:shadow-xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 >
                     <!-- Poster -->
                     <div class="relative aspect-[16/9] bg-slate-100 overflow-hidden">
@@ -384,9 +362,9 @@ onUnmounted(() => {
                         />
                         <div
                             v-else
-                            class="w-full h-full bg-gradient-to-br from-slate-800 to-sky-900 flex flex-col items-center justify-center p-3 text-white"
+                            class="w-full h-full bg-gradient-to-br from-slate-800 to-blue-900 flex flex-col items-center justify-center p-3 text-white"
                         >
-                            <svg class="w-8 h-8 text-sky-300/70 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+                            <svg class="w-8 h-8 text-blue-300/70 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
                             <span class="text-xs font-semibold text-white/90 text-center line-clamp-1">{{ event.name }}</span>
                         </div>
 
@@ -406,11 +384,11 @@ onUnmounted(() => {
                         <div class="flex items-center gap-1.5 text-[11px] font-medium text-slate-400 mb-1">
                             <span class="truncate">{{ event.location || 'Indonesia' }}</span>
                             <span v-if="event.ticket_categories?.length" class="text-slate-300">•</span>
-                            <span v-if="event.ticket_categories?.length" class="text-sky-600 font-medium truncate">
+                            <span v-if="event.ticket_categories?.length" class="text-blue-600 font-medium truncate">
                                 {{ event.ticket_categories.length > 1 ? `${event.ticket_categories.length} Kategori` : event.ticket_categories[0]?.name }}
                             </span>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900 group-hover:text-sky-600 transition-colors leading-snug line-clamp-2 mb-2">
+                        <h3 class="text-[15px] font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug line-clamp-2 mb-2">
                             {{ event.name }}
                         </h3>
                         <div class="flex items-center gap-1.5 text-xs text-slate-500 mb-auto">
@@ -427,7 +405,7 @@ onUnmounted(() => {
                                 </span>
                                 <span v-else class="text-xs text-slate-400 italic">Belum Buka</span>
                             </div>
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-sky-50 text-sky-600 border border-sky-200 rounded-lg text-xs font-bold group-hover:bg-sky-600 group-hover:text-white transition">
+                            <span class="inline-flex items-center gap-1 px-3 py-1.5 bg-white text-blue-600 border border-slate-200 rounded-full text-xs font-bold group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition duration-300 shadow-sm">
                                 Pilih Tiket
                             </span>
                         </div>
@@ -444,7 +422,7 @@ onUnmounted(() => {
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-5 border-t border-slate-100">
                         <div class="flex items-start gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center shrink-0 text-sky-600">
+                            <div class="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-blue-600">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </div>
                             <div>
@@ -453,7 +431,7 @@ onUnmounted(() => {
                             </div>
                         </div>
                         <div class="flex items-start gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center shrink-0 text-sky-600">
+                            <div class="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-blue-600">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                             </div>
                             <div>
@@ -462,7 +440,7 @@ onUnmounted(() => {
                             </div>
                         </div>
                         <div class="flex items-start gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center shrink-0 text-sky-600">
+                            <div class="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-blue-600">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                             </div>
                             <div>
@@ -487,9 +465,9 @@ onUnmounted(() => {
                         <input
                             type="text"
                             placeholder="Ketik nomor WhatsApp..."
-                            class="px-3 py-2 bg-white/10 border border-white/20 text-white placeholder-slate-400 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-sky-400 w-full sm:w-52"
+                            class="px-3 py-2 bg-white/10 border border-white/20 text-white placeholder-slate-400 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 w-full sm:w-52"
                         />
-                        <button type="button" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold rounded-xl transition shrink-0">
+                        <button type="button" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition shrink-0">
                             Aktifkan Notifikasi
                         </button>
                     </div>

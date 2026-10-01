@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import CustomerLayout from '@/Layouts/CustomerLayout.vue';
 import { api } from '@/services/api';
 import { formatRupiah, formatDate } from '@/stores/auth';
@@ -100,6 +100,20 @@ const firstAvailCatId = computed(() => {
     const found = ticketCategories.value.find(c => (c.quota - c.sold) > 0);
     return found?.id || null;
 });
+
+function goToCheckout() {
+    if (!hasSelection.value) {
+        alert('Silakan pilih minimal 1 tiket.');
+        return;
+    }
+    const selected = {};
+    for (const key in quantities.value) {
+        if (quantities.value[key] > 0) {
+            selected[key] = quantities.value[key];
+        }
+    }
+    router.get(`/checkout/${event.value.id}`, { qty: selected });
+}
 
 onMounted(() => {
     fetchEventDetails();
@@ -366,14 +380,14 @@ onMounted(() => {
                         </div>
 
                         <!-- Action Button -->
-                        <Link
+                        <button
                             v-if="isAvailableForBooking"
-                            :href="`/checkout/${event.id}`"
+                            @click="goToCheckout"
                             class="block w-full py-3.5 px-4 bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm rounded-xl text-center transition shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
                         >
                             Beli Sekarang
                             <span class="ml-1">&rsaquo;</span>
-                        </Link>
+                        </button>
                         <button
                             v-else
                             disabled

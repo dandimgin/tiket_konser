@@ -67,11 +67,21 @@ import { Link } from '@inertiajs/vue3';
                         <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-4">Metode Pembayaran Resmi</h3>
                         <p class="text-xs text-slate-500 mb-3">Dukungan instan transaksi aman perbankan Indonesia.</p>
                         <div class="flex flex-wrap gap-2">
-                            <span class="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-[11px] font-bold">BCA</span>
-                            <span class="px-2.5 py-1 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded text-[11px] font-bold">Mandiri</span>
-                            <span class="px-2.5 py-1 bg-orange-50 text-orange-700 border border-orange-200 rounded text-[11px] font-bold">BRI</span>
-                            <span class="px-2.5 py-1 bg-sky-50 text-sky-700 border border-sky-200 rounded text-[11px] font-bold">QRIS</span>
-                            <span class="px-2.5 py-1 bg-green-50 text-green-700 border border-green-200 rounded text-[11px] font-bold">GoPay</span>
+                            <div class="h-7 px-2 bg-white border border-slate-200 rounded flex items-center justify-center shrink-0">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg" alt="BCA" class="h-3.5 w-auto object-contain" />
+                            </div>
+                            <div class="h-7 px-2 bg-white border border-slate-200 rounded flex items-center justify-center shrink-0">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/Bank_Mandiri_logo_2016.svg" alt="Mandiri" class="h-3 w-auto object-contain" />
+                            </div>
+                            <div class="h-7 px-2 bg-white border border-slate-200 rounded flex items-center justify-center shrink-0">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/BRI_2020.svg" alt="BRI" class="h-3.5 w-auto object-contain" />
+                            </div>
+                            <div class="h-7 px-2 bg-white border border-slate-200 rounded flex items-center justify-center shrink-0">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" class="h-3.5 w-auto object-contain" />
+                            </div>
+                            <div class="h-7 px-2 bg-white border border-slate-200 rounded flex items-center justify-center shrink-0">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg" alt="GoPay" class="h-3.5 w-auto object-contain" />
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -32,7 +32,7 @@ if (typeof window !== 'undefined') {
 
 const navLinks = [
     { href: '/', label: 'Jelajah Event' },
-    { href: '/?popular=1', label: 'Event Populer' },
+    { href: '/#katalog-event', label: 'Event Populer' },
     { href: '/orders', label: 'Pesanan Saya', requireAuth: true },
     { href: '/tickets', label: 'Tiket Saya', requireAuth: true },
 ];
@@ -107,7 +107,7 @@ function handleLogout() {
                         Jelajah Event
                     </Link>
                     <Link
-                        href="/"
+                        href="/#katalog-event"
                         class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50/80 transition"
                     >
                         Event Populer
@@ -242,7 +242,7 @@ function handleLogout() {
             <Link href="/" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-xl text-sm font-medium text-slate-800 hover:bg-slate-50 transition">
                 Jelajah Event
             </Link>
-            <Link href="/" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition">
+            <Link href="/#katalog-event" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition">
                 Event Populer
             </Link>
 

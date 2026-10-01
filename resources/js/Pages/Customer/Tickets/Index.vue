@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import CustomerLayout from '@/Layouts/CustomerLayout.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import Modal from '@/Components/Modal.vue';
-import QrTicketScannerModal from '@/Components/QrTicketScannerModal.vue';
+
 import { api } from '@/services/api';
 import { auth, formatDate, formatRupiah } from '@/stores/auth';
 import { useToast } from '@/composables/useToast';
@@ -23,7 +23,7 @@ const error = ref(null);
 const activeTab = ref('active'); // 'active' | 'history' | 'pending'
 const selectedTicket = ref(null);
 const showTicketModal = ref(false);
-const showScannerModal = ref(false);
+
 
 const ticketQrs = ref({});
 const modalQrUrl = ref('');
@@ -278,24 +278,7 @@ onMounted(() => {
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-2 shrink-0 flex-wrap">
-                            <button
-                                type="button"
-                                @click="showScannerModal = true"
-                                class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-xl transition shadow-xs"
-                            >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-                                Scanner Gate
-                            </button>
-                            <button
-                                type="button"
-                                @click="selectedOrderId = null"
-                                class="px-3 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
-                                title="Lihat semua tiket"
-                            >
-                                Lihat Semua Konser
-                            </button>
-                        </div>
+                        <!-- Action buttons removed for cleaner UX -->
                     </div>
 
                     <!-- Notice banner -->
@@ -322,14 +305,7 @@ onMounted(() => {
                             <p class="text-sm text-slate-500 mt-0.5">Tunjukkan QR code resmi untuk verifikasi turnstile gate atau gunakan scanner kamera.</p>
                         </div>
                         <div class="flex items-center gap-2 shrink-0 flex-wrap">
-                            <button
-                                type="button"
-                                @click="showScannerModal = true"
-                                class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-xl transition shadow-xs"
-                            >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-                                Pindai / Cek QR Tiket
-                            </button>
+
                             <button
                                 type="button"
                                 @click="fetchTickets"
@@ -638,25 +614,7 @@ onMounted(() => {
                             </div>
                         </div>
 
-                        <!-- Scan Tool Card -->
-                        <div class="p-5 bg-gradient-to-br from-sky-50 to-blue-50/50 border border-sky-200 rounded-2xl shadow-xs">
-                            <div class="flex items-center gap-2 mb-2 text-sky-900 font-bold text-xs uppercase tracking-wide">
-                                <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                                </svg>
-                                Fitur Pemindai Gate Turnstile
-                            </div>
-                            <p class="text-xs text-sky-800 leading-relaxed mb-4">
-                                Penyelenggara acara dan petugas gate dapat langsung memindai tiket pengunjung menggunakan kamera HP melalui scanner terintegrasi Tiketin.
-                            </p>
-                            <button
-                                type="button"
-                                @click="showScannerModal = true"
-                                class="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-2"
-                            >
-                                Buka Scanner Gate Tiketin
-                            </button>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -737,11 +695,6 @@ onMounted(() => {
             </template>
         </Modal>
 
-        <!-- Interactive QR Scanner Modal -->
-        <QrTicketScannerModal
-            :show="showScannerModal"
-            @close="showScannerModal = false"
-            @ticket-updated="fetchTickets"
-        />
+
     </CustomerLayout>
 </template>

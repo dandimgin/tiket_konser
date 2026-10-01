@@ -43,6 +43,33 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Payment tidak ditemukan.'], 404);
         }
 
+        // Auto verify if using mock payment gateway
+        if ($data['proof'] === 'MOCK_GATEWAY_SUCCESS') {
+            DB::transaction(function () use ($order, $payment, $data) {
+                $payment->update([
+                    'payment_method' => $data['payment_method'],
+                    'proof' => $data['proof'],
+                    'status' => 'verified',
+                    'paid_at' => now(),
+                ]);
+                $order->update(['status' => 'paid']);
+                foreach ($order->orderItems as $item) {
+                    for ($i = 0; $i < $item->quantity; $i++) {
+                        Ticket::create([
+                            'order_id' => $order->id,
+                            'ticket_category_id' => $item->ticket_category_id,
+                            'ticket_code' => 'TIK-' . strtoupper(Str::random(10)),
+                            'status' => 'active',
+                        ]);
+                    }
+                }
+            });
+            return response()->json([
+                'message' => 'Payment gateway disimulasikan.',
+                'data' => $payment,
+            ]);
+        }
+
         $payment->update([
             'payment_method' => $data['payment_method'],
             'proof' => $data['proof'],
